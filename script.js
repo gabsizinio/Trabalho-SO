@@ -124,8 +124,13 @@ class Escalonator{
         */
         for(let i = 0; i < this.ProcessArray.length; i++){
             if(this.ProcessArray[i].Arrival == 0 && this.ProcessArray[i].ExecutionTime > 0){
-                RunningProcess = this.ProcessArray[i];
-                break;
+                if(RunningProcess == undefined){
+                    RunningProcess = this.ProcessArray[i];
+                }else{
+                    if(RunningProcess.ExecutionTime > this.ProcessArray[i].ExecutionTime){
+                        RunningProcess = this.ProcessArray[i]
+                    }
+                }
             }
         }
         if(RunningProcess == undefined){
@@ -230,7 +235,7 @@ class Escalonator{
         executado.
         */
         for(let i = 0; i < this.ProcessArray.length; i++){
-            if(this.ProcessArray[i].Arrival == 0  && this.ProcessArray[i].ExecutionTime > 0){
+            if(this.ProcessArray[i].Arrival == 0 && this.ProcessArray[i].ExecutionTime){
                 RunningProcess = this.ProcessArray[i];
                 RunningProcess.Executed = true
                 break;
@@ -329,15 +334,20 @@ class Escalonator{
         */
         for(let i = 0; i < this.ProcessArray.length; i++){
             if(this.ProcessArray[i].Arrival == 0 && this.ProcessArray[i].ExecutionTime > 0){
-                RunningProcess = this.ProcessArray[i];
-                RunningProcess.Executed = true
-                break;
+                if(RunningProcess == undefined){
+                    RunningProcess = this.ProcessArray[i];
+                }else{
+                    if(RunningProcess.Deadline > this.ProcessArray[i].Deadline){
+                        RunningProcess = this.ProcessArray[i]
+                    }
+                }
             }
         }
 
         if(RunningProcess == undefined){
             return 0;
         }
+        RunningProcess.Executed = true
 
         while(NumberOfExecutedProcess < NumberOfProcess){
             /* 
@@ -439,10 +449,10 @@ class Escalonator{
     
 }
 
-var A = new Process("A", 0, 0, 0)
-var B = new Process("B", 0, 0, 0)
-var C = new Process("C", 0, 0, 0)
-var D = new Process("D", 0, 0, 0)
+var A = new Process("A", 4, 7, 0)
+var B = new Process("B", 2, 5, 2)
+var C = new Process("C", 1, 8, 4)
+var D = new Process("D", 3, 10, 6)
 
 var Escalonador = new Escalonator(2, 1)
 Escalonador.AddProcess(A)
