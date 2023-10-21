@@ -24,7 +24,7 @@ class Escalonator{
 
     Fifo(){
         var Queue = [];
-        var RunningProcess;
+        var RunningProcess  = undefined;
         var Time = 0;
         var NumberOfProcess = this.ProcessArray.length
         var NumberOfExecutedProcess = 0
@@ -34,10 +34,13 @@ class Escalonator{
         Faz um Loop pela lista de Processos, procurando pelo primeiro processo com .Arrival == 0.
         */
         for(let i = 0; i < this.ProcessArray.length; i++){
-            if(this.ProcessArray[i].Arrival == 0){
+            if(this.ProcessArray[i].Arrival == 0 && this.ProcessArray[i].ExecutionTime){
                 RunningProcess = this.ProcessArray[i];
                 break;
             }
+        }
+        if(RunningProcess == undefined){
+            return 0;
         }
         
         /*
@@ -110,7 +113,7 @@ class Escalonator{
 
     SJF(){
         var WaitingProcess = [];
-        var RunningProcess;
+        var RunningProcess = undefined;
         var Time = 0;
         var NumberOfProcess = this.ProcessArray.length
         var NumberOfExecutedProcess = 0
@@ -120,10 +123,13 @@ class Escalonator{
         Faz um Loop pela lista de Processos, procurando pelo primeiro processo com .Arrival == 0.
         */
         for(let i = 0; i < this.ProcessArray.length; i++){
-            if(this.ProcessArray[i].Arrival == 0){
+            if(this.ProcessArray[i].Arrival == 0 && this.ProcessArray[i].ExecutionTime > 0){
                 RunningProcess = this.ProcessArray[i];
                 break;
             }
+        }
+        if(RunningProcess == undefined){
+            return 0;
         }
         /* 
         Loop em que é executado o SJF em si, onde o RunningProcess guarda o processo
@@ -210,7 +216,7 @@ class Escalonator{
 
     RoundRobin(){
         var Queue = [];
-        var RunningProcess;
+        var RunningProcess = undefined;
         var Time = 0;
         var NumberOfProcess = this.ProcessArray.length
         var NumberOfExecutedProcess = 0
@@ -224,11 +230,14 @@ class Escalonator{
         executado.
         */
         for(let i = 0; i < this.ProcessArray.length; i++){
-            if(this.ProcessArray[i].Arrival == 0){
+            if(this.ProcessArray[i].Arrival == 0  && this.ProcessArray[i].ExecutionTime > 0){
                 RunningProcess = this.ProcessArray[i];
                 RunningProcess.Executed = true
                 break;
             }
+        }
+        if(RunningProcess == undefined){
+            return 0;
         }
 
         while(NumberOfExecutedProcess < NumberOfProcess){
@@ -305,7 +314,7 @@ class Escalonator{
 
     EDF(){
         var WaitingProcess = [];
-        var RunningProcess;
+        var RunningProcess = undefined;
         var Time = 0;
         var NumberOfProcess = this.ProcessArray.length
         var NumberOfExecutedProcess = 0
@@ -319,11 +328,15 @@ class Escalonator{
         executado.
         */
         for(let i = 0; i < this.ProcessArray.length; i++){
-            if(this.ProcessArray[i].Arrival == 0){
+            if(this.ProcessArray[i].Arrival == 0 && this.ProcessArray[i].ExecutionTime > 0){
                 RunningProcess = this.ProcessArray[i];
                 RunningProcess.Executed = true
                 break;
             }
+        }
+
+        if(RunningProcess == undefined){
+            return 0;
         }
 
         while(NumberOfExecutedProcess < NumberOfProcess){
@@ -426,10 +439,10 @@ class Escalonator{
     
 }
 
-var A = new Process("A", 4, 7, 0)
-var B = new Process("B", 2, 5, 2)
-var C = new Process("C", 1, 8, 4)
-var D = new Process("D", 3, 10, 6)
+var A = new Process("A", 0, 0, 0)
+var B = new Process("B", 0, 0, 0)
+var C = new Process("C", 0, 0, 0)
+var D = new Process("D", 0, 0, 0)
 
 var Escalonador = new Escalonator(2, 1)
 Escalonador.AddProcess(A)
@@ -437,6 +450,6 @@ Escalonador.AddProcess(B)
 Escalonador.AddProcess(C)
 Escalonador.AddProcess(D)
 
-var res = Escalonador.Edf()
+var res = Escalonador.EDF()
 
 console.log(res)
