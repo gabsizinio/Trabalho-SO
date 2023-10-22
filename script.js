@@ -16,11 +16,11 @@ class Process{
 }
 
 class Escalonator{
-    constructor(QuantumTime, OverloadTime, Delay){
+    constructor(QuantumTime, OverloadTime){
         this.QuantumTime = QuantumTime;
         this.OverloadTime = OverloadTime;
         this.ProcessArray = [];
-        this.delay = Delay * 1000
+        this.AverageResponseTime = 0
     }
 
     AddProcess(Process){
@@ -33,6 +33,7 @@ class Escalonator{
         var Time = 0;
         var NumberOfProcess = this.ProcessArray.length
         var NumberOfExecutedProcess = 0
+        var ProcessesByTime = []
         
         /*
         Procura pelo primeiro processo a entrar na Queue (Processo que tem .Arrival == 0).
@@ -55,7 +56,6 @@ class Escalonator{
         para serem executados.
         */
         while(NumberOfExecutedProcess < NumberOfProcess){
-            sleep(this.delay)
             /* 
             Ao início de cada iteração (ou seja, quando o Time aumenta), percorremos o vetor de Processos,
             checando se algum processo entrou na Queue, ou seja, se há algum processo com .Arrival ==  Time.
@@ -71,6 +71,7 @@ class Escalonator{
             */
             if(RunningProcess == undefined && Queue.length == 0){
                 Time++;
+                ProcessesByTime.push("N")
                 continue;
             }
             /* 
@@ -81,7 +82,6 @@ class Escalonator{
             if(RunningProcess == undefined && Queue.length > 0){
                 RunningProcess = Queue[0];
                 Queue.shift()
-                sleep(this.delay)
             }
             /* 
             Verifica se o RunningProcess já atingiu o tempo rodando igual ao seu tempo de execução
@@ -102,7 +102,7 @@ class Escalonator{
                 RunningProcess = Queue[0];
                 Queue.shift();
             }
-            sleep(this.delay)
+            ProcessesByTime.push(RunningProcess.Key)
             RunningProcess.RunningTime++;
             Time++;
         }
@@ -111,12 +111,13 @@ class Escalonator{
         o tempo executando + o tempo em espera), somamos na variável AverageResponseTime e 
         depois dividimos pelo número de processos, para calcular o tempo médio de execução.
         */
-        var AverageResponseTime = 0
+        var ART = 0
         for(let i = 0; i < this.ProcessArray.length; i++){
-            AverageResponseTime += this.ProcessArray[i].Finish - this.ProcessArray[i].Arrival
+            ART += this.ProcessArray[i].Finish - this.ProcessArray[i].Arrival
         }
-        AverageResponseTime = AverageResponseTime / NumberOfProcess
-        return AverageResponseTime.toFixed(2)
+        ART = ART / NumberOfProcess
+        this.AverageResponseTime = ART.toFixed(2)
+        return ProcessesByTime
     }
 
     SJF(){
@@ -125,6 +126,7 @@ class Escalonator{
         var Time = 0;
         var NumberOfProcess = this.ProcessArray.length
         var NumberOfExecutedProcess = 0
+        var ProcessesByTime = []
 
         /*
         Procura pelo primeiro processo a entrar na Queue (Processo que tem .Arrival == 0).
@@ -150,7 +152,6 @@ class Escalonator{
         de processos executados ser igual ao número de processos originais.
         */
         while(NumberOfExecutedProcess < NumberOfProcess){
-            sleep(this.delay)
             /* 
             Ao início de cada LOOP, ou seja, quando o "Time" é incrementado, verificamos
             se algum processo entrou na LISTA DE PROCESSOS ESPERANDO, para isso, basta
@@ -167,6 +168,7 @@ class Escalonator{
             caso, basta incrementar o "Time" até que algum outro processo entre.
             */
             if(RunningProcess == undefined && WaitingProcess.length == 0){
+                ProcessesByTime.push("N")
                 Time++;
                 continue;
             }
@@ -183,7 +185,6 @@ class Escalonator{
                         NextProcess = k;
                     }
                 }
-                sleep(this.delay)
                 RunningProcess = WaitingProcess[NextProcess];
                 WaitingProcess.slice(NextProcess,1);
             }
@@ -213,7 +214,7 @@ class Escalonator{
                 RunningProcess = WaitingProcess[NextProcess];
                 WaitingProcess.splice(NextProcess,1);
             }
-            sleep(this.delay)
+            ProcessesByTime.push(RunningProcess.Key)
             RunningProcess.RunningTime++;
             Time++;
         }
@@ -222,12 +223,13 @@ class Escalonator{
         o tempo executando + o tempo em espera), somamos na variável AverageResponseTime e 
         depois dividimos pelo número de processos, para calcular o tempo médio de execução.
         */
-        var AverageResponseTime = 0
+        var ART = 0
         for(let i = 0; i < this.ProcessArray.length; i++){
-            AverageResponseTime += this.ProcessArray[i].Finish - this.ProcessArray[i].Arrival
+            ART += this.ProcessArray[i].Finish - this.ProcessArray[i].Arrival
         }
-        AverageResponseTime = AverageResponseTime / NumberOfProcess
-        return AverageResponseTime.toFixed(2)
+        ART = ART / NumberOfProcess
+        this.AverageResponseTime = ART.toFixed(2)
+        return ProcessesByTime
     }
 
     RoundRobin(){
@@ -237,6 +239,7 @@ class Escalonator{
         var NumberOfProcess = this.ProcessArray.length
         var NumberOfExecutedProcess = 0
         var RealTimeQuantum = 0;
+        var ProcessesByTime = []
 
         /*
         Procura pelo primeiro processo a entrar na Queue (Processo que tem .Arrival == 0).
@@ -257,7 +260,6 @@ class Escalonator{
         }
 
         while(NumberOfExecutedProcess < NumberOfProcess){
-            sleep(this.delay)
             /* 
             Percorremos a lista de Processos, verificando se há algum que entrou na FILA, perceba que aqui é usado
             o <= ao invés do ==, por conta da adição do tempo de sobrecarga, e para prevenir de pegar processos que já
@@ -273,6 +275,7 @@ class Escalonator{
             Caso em que não há nenhum processo rodando, nem nenhum na FILA, nesse caso basta aumentar o "Time"
             */
             if(RunningProcess == undefined && Queue.length == 0){
+                ProcessesByTime.push("N")
                 Time++;
                 continue;
             }
@@ -284,7 +287,6 @@ class Escalonator{
                 RunningProcess = Queue[0];
                 Queue.shift();
                 RealTimeQuantum = 0;
-                sleep(this.delay)
             }
             /* 
             Processo que estava executando terminou, assim, zeramos o Quantum, e o que estava na FILA entra em seu lugar.
@@ -302,7 +304,6 @@ class Escalonator{
                 }
                 RunningProcess = Queue[0];
                 Queue.shift();
-                sleep(this.delay)
             }
             /* 
             Quantum chegou ao seu limite, o processo que estava sendo executado volta para FILA, e o que estava na
@@ -315,21 +316,24 @@ class Escalonator{
                 //console.log(`${AuxVar.Key} voltou pra fila`)
                 RunningProcess = Queue[0];
                 Queue.shift();
-                Time += this.OverloadTime;
+                for(let i = 0; i < this.OverloadTime; i++){
+                    ProcessesByTime.push("S")
+                    Time++;
+                }
                 RealTimeQuantum = 0;
             }
-            sleep(this.delay)
+            ProcessesByTime.push(RunningProcess.Key)
             RealTimeQuantum++;
             RunningProcess.RunningTime++;
             Time++;
         }
-        var AverageResponseTime = 0
-
+        var ART = 0
         for(let i = 0; i < this.ProcessArray.length; i++){
-            AverageResponseTime += this.ProcessArray[i].Finish - this.ProcessArray[i].Arrival
+            ART += this.ProcessArray[i].Finish - this.ProcessArray[i].Arrival
         }
-        AverageResponseTime = AverageResponseTime / NumberOfProcess
-        return AverageResponseTime.toFixed(2)
+        ART = ART / NumberOfProcess
+        this.AverageResponseTime = ART.toFixed(2)
+        return ProcessesByTime
     }
 
     EDF(){
@@ -339,6 +343,7 @@ class Escalonator{
         var NumberOfProcess = this.ProcessArray.length
         var NumberOfExecutedProcess = 0
         var RealTimeQuantum = 0;
+        var ProcessesByTime = []
 
         /*
         Procura pelo primeiro processo a entrar na Queue (Processo que tem .Arrival == 0).
@@ -365,7 +370,6 @@ class Escalonator{
         RunningProcess.Executed = true
 
         while(NumberOfExecutedProcess < NumberOfProcess){
-            sleep(this.delay)
             /* 
             Percorremos a lista de Processos, verificando se há algum que entrou na FILA, perceba que aqui é usado
             o <= ao invés do ==, por conta da adição do tempo de sobrecarga, e para prevenir de pegar processos que já
@@ -381,6 +385,7 @@ class Escalonator{
             Caso em que não há nenhum processo rodando, nem nenhum na FILA, nesse caso basta aumentar o "Time"
             */
             if(RunningProcess == undefined && WaitingProcess.length == 0){
+                ProcessesByTime.push("N")
                 Time++;
                 continue;
             }
@@ -397,8 +402,7 @@ class Escalonator{
                         NewProcess = i;
                         LessTime = WaitingProcess[i].Deadline - AuxLessTime;
                     }
-                } 
-                sleep(this.delay)                    
+                }                    
                 RunningProcess = WaitingProcess[NewProcess];
                 WaitingProcess.splice(NewProcess,1);
                 RealTimeQuantum = 0;
@@ -425,8 +429,7 @@ class Escalonator{
                         NewProcess = i;
                         LessTime = WaitingProcess[i].Deadline - AuxLessTime;
                     }
-                }  
-                sleep(this.delay)             
+                }              
                 RunningProcess = WaitingProcess[NewProcess];
                 WaitingProcess.splice(NewProcess,1);
                 RealTimeQuantum = 0;
@@ -446,24 +449,31 @@ class Escalonator{
                         NewProcess = i;
                         LessTime = WaitingProcess[i].Deadline - AuxLessTime;
                     }
-                }    
-                sleep(this.delay)            
+                }              
                 RunningProcess = WaitingProcess[NewProcess];
                 WaitingProcess.splice(NewProcess,1);
-                Time += this.OverloadTime;
+
+                for(let i = 0; i < this.OverloadTime; i++){
+                    ProcessesByTime.push("S")
+                    console.log(`Time ${Time}: S`)
+                    Time++;
+                }
                 RealTimeQuantum = 0;
             }
+            ProcessesByTime.push(RunningProcess.Key)
+            console.log(`Time ${Time}: ${RunningProcess.Key}`)
             RealTimeQuantum++;
             RunningProcess.RunningTime++;
             Time++;
         }
-        var AverageResponseTime = 0
+        var ART = 0
 
         for(let i = 0; i < this.ProcessArray.length; i++){
-            AverageResponseTime += this.ProcessArray[i].Finish - this.ProcessArray[i].Arrival
+            ART += this.ProcessArray[i].Finish - this.ProcessArray[i].Arrival
         }
-        AverageResponseTime = AverageResponseTime / NumberOfProcess
-        return AverageResponseTime.toFixed(2)
+        ART = ART / NumberOfProcess
+        this.AverageResponseTime = ART.toFixed(2)
+        return ProcessesByTime
     }
     
 }
@@ -473,7 +483,7 @@ var B = new Process("B", 2, 5, 2)
 var C = new Process("C", 1, 8, 4)
 var D = new Process("D", 3, 10, 6)
 
-var Escalonador = new Escalonator(2, 1, 2)
+var Escalonador = new Escalonator(2, 1)
 Escalonador.AddProcess(A)
 Escalonador.AddProcess(B)
 Escalonador.AddProcess(C)
